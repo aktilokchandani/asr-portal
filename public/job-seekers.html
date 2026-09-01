@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Job Seekers | Active Staffing Resources</title>
+<meta name="description" content="Apply instant to open roles across Pennsylvania, New Jersey, and Delaware — or create a private profile with Active Staffing Resources." />
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="page-header">
+  <h1>Your profile is yours — we don't shop it around</h1>
+  <p>Create a profile once. ASR recruiters match you to roles that fit; your information is never visible to a client company until you've agreed to move forward.</p>
+</div>
+
+<section class="section">
+  <div class="grid-2">
+    <div>
+      <div class="section-head" style="margin-bottom:1rem">
+        <div class="eyebrow">Quick apply</div>
+        <h2 style="margin-top:0">Apply instant.</h2>
+        <p>Don't have five minutes to build a full profile right now? Send us your info and the role you're interested in — a recruiter will follow up directly.</p>
+      </div>
+      <div class="section-head">
+        <div class="eyebrow">How it works</div>
+        <h2>From profile to placement</h2>
+      </div>
+      <div class="step"><div class="num"></div><div><h4>Create your profile</h4><p>Tell us your skills, experience, and target rate. Takes about five minutes.</p></div></div>
+      <div class="step"><div class="num"></div><div><h4>A recruiter reviews it</h4><p>Every profile is reviewed by an ASR recruiter before it's activated — no bots deciding whether you're a fit.</p></div></div>
+      <div class="step"><div class="num"></div><div><h4>Apply or get matched</h4><p>Browse open roles below and apply directly, or let your recruiter bring matching roles to you.</p></div></div>
+      <div class="step"><div class="num"></div><div><h4>Interview and get placed</h4><p>Your recruiter preps you for the interview and negotiates on your behalf — client identity is only shared once you're moving forward.</p></div></div>
+    </div>
+
+    <div class="public-form">
+      <h3 style="margin-top:0">Apply Instant</h3>
+      <p style="color:var(--muted);font-size:0.85rem;margin-top:-0.5rem">We'll respond within one business day.</p>
+      <form id="quickApplyForm">
+        <label>Full Name</label>
+        <input id="qa_name" required />
+        <label>Email</label>
+        <input id="qa_email" type="email" required />
+        <label>Phone (optional)</label>
+        <input id="qa_phone" />
+        <label>Position</label>
+        <select id="qa_position"></select>
+        <label>Message (optional)</label>
+        <textarea id="qa_message" rows="3" placeholder="Anything else we should know?"></textarea>
+        <button class="btn btn-fill btn-lg" style="width:100%;margin-top:1.25rem" type="submit">Apply Instant</button>
+        <div class="error-msg" id="quickApplyMsg"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="section tight" style="background:#f6f7fb;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="section-head">
+    <div class="eyebrow">Open Roles</div>
+    <h2>Current opportunities</h2>
+    <p>Client identity stays confidential until you're moving forward in the process. Register or log in to apply directly.</p>
+  </div>
+  <div id="openRoles" class="grid-3"></div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <div class="eyebrow">Privacy</div>
+    <h2>Your data, on your terms</h2>
+  </div>
+  <div class="grid-3">
+    <div class="pub-card"><div class="icon">🔒</div><h3>Private by default</h3><p>Client companies never see your name, contact details, or full profile. They only see anonymized skills and experience until a match is made.</p></div>
+    <div class="pub-card"><div class="icon">👤</div><h3>You control your status</h3><p>Mark yourself as actively looking or not currently available at any time from your candidate dashboard.</p></div>
+    <div class="pub-card"><div class="icon">✕</div><h3>No resume spam</h3><p>We don't sell or forward your information to third parties. Ever.</p></div>
+  </div>
+</section>
+
+<section class="section tight" style="background:#f6f7fb;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="section-head">
+    <div class="eyebrow">Recommendation as a job seeker</div>
+    <h2>What candidates say</h2>
+  </div>
+  <div class="grid-3">
+    <div class="testimonial">
+      <p class="quote">"Joe and his team found me a role that actually matched what I was looking for — not just the first opening they had. I felt like a person, not a number."</p>
+      <div class="who"><div class="avatar">DT</div><div><b>Dianne T.</b></div></div>
+    </div>
+    <div class="testimonial">
+      <p class="quote">"ASR kept me updated at every step and prepped me well for the interview. I had an offer within two weeks of signing up."</p>
+      <div class="who"><div class="avatar">RH</div><div><b>Robert H.</b></div></div>
+    </div>
+    <div class="testimonial">
+      <p class="quote">"I appreciated that Joe was upfront about which roles were and weren't a fit for me. That honesty is rare in staffing."</p>
+      <div class="who"><div class="avatar">LP</div><div><b>Laura P.</b></div></div>
+    </div>
+  </div>
+</section>
+
+<div class="cta-band">
+  <h2>Get Started</h2>
+  <p>Empower your business with the right people — or find the role that's right for you.</p>
+  <a href="/contact" class="btn btn-fill btn-lg">Get In Touch</a>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="/js/api.js"></script>
+<script>
+let OPEN_JOBS = [];
+
+function renderRoles(jobs) {
+  const el = document.getElementById('openRoles');
+  el.innerHTML = jobs.map(j => `
+    <div class="job-card">
+      <div class="job-top">
+        <div>
+          <h3><a href="/job/${j.id}" style="color:inherit;text-decoration:none">${j.title}</a></h3>
+          <div class="meta">${j.client} &middot; ${j.location} &middot; ${j.employmentType}</div>
+        </div>
+      </div>
+      <p class="desc">${j.description}</p>
+      <div>${j.skillsNeeded.map(s => `<span class="chip">${s}</span>`).join('')}</div>
+      <div class="job-bottom">
+        <span style="font-size:0.78rem;color:var(--muted)">Posted ${j.createdAt}</span>
+        <a class="btn-sm" href="/job/${j.id}">View Job</a>
+      </div>
+    </div>
+  `).join('') || `<p class="empty">No open roles right now — check back soon, or apply instant above so we can reach out when one opens up.</p>`;
+}
+
+async function loadRoles() {
+  try {
+    OPEN_JOBS = await api('/api/public/jobs');
+  } catch (e) {
+    OPEN_JOBS = [];
+  }
+  renderRoles(OPEN_JOBS);
+  const posSel = document.getElementById('qa_position');
+  posSel.innerHTML = OPEN_JOBS.map(j => `<option value="${j.title}">${j.title}</option>`).join('') + '<option value="General interest">General interest — no specific role yet</option>';
+}
+
+document.getElementById('quickApplyForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const msgEl = document.getElementById('quickApplyMsg');
+  msgEl.style.color = '';
+  msgEl.textContent = '';
+  const position = document.getElementById('qa_position').value;
+  const extra = document.getElementById('qa_message').value;
+  try {
+    await api('/api/contact', { method: 'POST', body: {
+      name: document.getElementById('qa_name').value,
+      email: document.getElementById('qa_email').value,
+      phone: document.getElementById('qa_phone').value,
+      serviceType: 'staffing',
+      message: `Quick apply — Position: ${position}. ${extra}`.trim()
+    }});
+    document.getElementById('quickApplyForm').reset();
+    msgEl.style.color = 'var(--success)';
+    msgEl.textContent = 'Thanks — an ASR recruiter will reach out within one business day.';
+  } catch (err) {
+    msgEl.textContent = err.message;
+  }
+});
+
+loadRoles();
+</script>
+
+<script src="/js/include.js"></script>
+<script src="/js/router.js"></script>
+</body>
+</html>

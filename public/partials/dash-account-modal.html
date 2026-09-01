@@ -1,0 +1,21 @@
+<!--
+  CHANGE PASSWORD MODAL — shared across the Agency, Client, and Candidate portals.
+  Opened from the "My Account" menu in the top bar (see dash-topbar.html).
+  Edit this ONE file to change the modal's fields/copy everywhere at once.
+-->
+<div class="modal-backdrop" id="changePasswordModal">
+  <div class="modal">
+    <h3>Change Password</h3>
+    <label>Current Password</label>
+    <input type="password" id="cp_current" autocomplete="current-password" />
+    <label>New Password</label>
+    <input type="password" id="cp_new" autocomplete="new-password" />
+    <label>Confirm New Password</label>
+    <input type="password" id="cp_confirm" autocomplete="new-password" />
+    <div class="error-msg" id="cp_msg"></div>
+    <div class="modal-actions">
+      <button class="btn-sm secondary" type="button" onclick="closeModal('changePasswordModal')">Cancel</button>
+      <button class="btn-sm" type="button" onclick="submitChangePassword()">Update Password</button>
+    </div>
+  </div>
+</div>

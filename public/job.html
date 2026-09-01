@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Job Details | Active Staffing Resources</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="page-header">
+  <h1 id="jobTitle">Job Details</h1>
+  <p id="jobMeta">&nbsp;</p>
+</div>
+
+<section class="section" style="max-width:820px">
+  <div id="statusNote"></div>
+  <div id="jobDetail"></div>
+  <p style="margin-top:1.5rem"><a href="/jobs">&larr; Back to all open roles</a></p>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="/js/api.js"></script>
+<script>
+let ME = null;
+let MY_APPLICATIONS = [];
+let JOB = null;
+
+function jobIdFromUrl() {
+  // clean route: /job/5 — fall back to ?id=5 for any old-style links
+  const pathMatch = window.location.pathname.match(/^\/job\/(\d+)$/);
+  if (pathMatch) return Number(pathMatch[1]);
+  const params = new URLSearchParams(window.location.search);
+  return Number(params.get('id'));
+}
+
+window.applyToJob = async function applyToJob(jobId) {
+  if (!ME) { window.location.href = '/login?next=jobs'; return; }
+  if (ME.role !== 'candidate') {
+    alert('Only candidate accounts can apply to roles. You are logged in as a ' + ME.role + ' account.');
+    return;
+  }
+  try {
+    await api('/api/applications', { method: 'POST', body: { jobRequestId: jobId } });
+    await render();
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+function alreadyApplied(jobId) {
+  return MY_APPLICATIONS.some(a => a.jobRequestId === jobId);
+}
+
+function render() {
+  const el = document.getElementById('jobDetail');
+  if (!JOB) {
+    document.getElementById('jobTitle').textContent = 'Role not found';
+    document.getElementById('jobMeta').textContent = 'This role may have closed or the link is out of date.';
+    el.innerHTML = `<p class="empty">We couldn't find that role — <a href="/jobs">browse all open roles</a> instead.</p>`;
+    return;
+  }
+  document.getElementById('jobTitle').textContent = JOB.title;
+  document.getElementById('jobMeta').textContent = `${JOB.client} · ${JOB.location} · ${JOB.employmentType}`;
+  el.innerHTML = `
+    <div class="job-card">
+      <div class="job-top">
+        <div>
+          <h3 style="font-size:1.3rem">${JOB.title}</h3>
+          <div class="meta">${JOB.client} &middot; ${JOB.location} &middot; ${JOB.employmentType} &middot; ${JOB.industry || ''}</div>
+        </div>
+        <div class="pay">$${JOB.payPerDay.toLocaleString('en-US')}/day</div>
+      </div>
+      <p class="desc" style="font-size:0.95rem;line-height:1.75">${JOB.description}</p>
+      <h4 style="margin:1.25rem 0 0.6rem;font-size:0.9rem">Skills needed</h4>
+      <div>${JOB.skillsNeeded.map(s => `<span class="chip">${s}</span>`).join('')}</div>
+      <div class="job-bottom">
+        <span style="font-size:0.78rem;color:var(--muted)">Posted ${JOB.createdAt}</span>
+        ${alreadyApplied(JOB.id)
+          ? `<span class="badge active">Applied</span>`
+          : `<button class="btn-sm" onclick="applyToJob(${JOB.id})">Apply Now</button>`}
+      </div>
+    </div>
+  `;
+}
+
+(async () => {
+  const { user } = await api('/api/me');
+  ME = user;
+  const noteEl = document.getElementById('statusNote');
+  if (!ME) {
+    noteEl.innerHTML = `<div class="status-note info">Browsing as a guest. <a href="/register">Create a profile</a> or <a href="/login?next=jobs">log in</a> to apply.</div>`;
+  } else if (ME.role === 'candidate') {
+    noteEl.innerHTML = `<div class="status-note success">Logged in as ${ME.name}. You can apply directly below.</div>`;
+    try { MY_APPLICATIONS = await api('/api/applications'); } catch (e) { MY_APPLICATIONS = []; }
+  } else {
+    noteEl.innerHTML = `<div class="status-note info">You're logged in as a ${ME.role} account. Applications are only available to candidate accounts.</div>`;
+  }
+
+  const jobs = await api('/api/public/jobs');
+  JOB = jobs.find(j => j.id === jobIdFromUrl()) || null;
+  render();
+})();
+</script>
+
+<script src="/js/include.js"></script>
+<script src="/js/router.js"></script>
+</body>
+</html>

@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Agency Dashboard | Active Staffing Resources</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="brand" style="color:#fff;margin-bottom:1.5rem;font-size:0.95rem"><img src="/images/logo-removebg-preview-300x166.webp" alt="Active Staffing Resources" class="brand-logo" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'" /><span style="display:none">ASR</span></div>
+    <h2 id="userName">Agency</h2>
+    <div class="role-tag">Agency Admin</div>
+    <nav>
+      <a data-tab="overview" class="active">Overview</a>
+      <a data-tab="candidates">Candidates</a>
+      <a data-tab="applications">Applications</a>
+      <a data-tab="jobs">Client Job Requests</a>
+      <a data-tab="placements">Placements</a>
+      <a data-tab="engagements">Advisory Engagements</a>
+      <a data-tab="invoices">Billing / Invoices</a>
+      <a data-tab="leads">Employer Leads</a>
+    </nav>
+  </div>
+  <div class="main">
+    <div id="dash-topbar"></div>
+
+    <div id="tab-overview">
+      <h1>Overview</h1>
+      <p class="sub">ASR's business at a glance.</p>
+      <div class="stat-grid" id="statGrid"></div>
+      <div class="card">
+        <h3>Two divisions, one pipeline</h3>
+        <p style="font-size:0.87rem;color:var(--muted);line-height:1.6;margin:0 0 0.9rem">
+          <b>Staffing:</b> a client company posts a job request &rarr; ASR matches it against the private candidate pool &rarr;
+          ASR assigns a candidate to the client as a <b>placement</b>, setting the agency markup &rarr; ASR invoices the client per period worked.
+        </p>
+        <p style="font-size:0.87rem;color:var(--muted);line-height:1.6;margin:0">
+          <b>Outsourced Bookkeeping &amp; Advisory:</b> a client signs up for ongoing service instead of a hire &rarr; ASR sets up an <b>engagement</b>
+          (optionally staffed by someone from the candidate pool) &rarr; ASR bills a flat monthly fee. Candidates and clients never interact directly or see each other's contact details — every match runs through the agency.
+        </p>
+      </div>
+    </div>
+
+    <div id="tab-candidates" style="display:none">
+      <div class="toolbar">
+        <div>
+          <h1>Candidates</h1>
+          <p class="sub">Private candidate pool — self-registered profiles need review before they're active.</p>
+        </div>
+        <button class="btn-sm" onclick="openCandidateModal()">+ Add Candidate</button>
+      </div>
+      <div class="card">
+        <table id="candidatesTable">
+          <thead><tr><th>Name</th><th>Title</th><th>Skills</th><th>Experience</th><th>Location</th><th>Rate/day</th><th>Source</th><th>Status</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-applications" style="display:none">
+      <h1>Applications</h1>
+      <p class="sub">Candidates who applied directly to a posted role.</p>
+      <div class="card">
+        <table id="applicationsTable">
+          <thead><tr><th>Candidate</th><th>Applied For</th><th>Client</th><th>Applied</th><th>Status</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-jobs" style="display:none">
+      <h1>Client Job Requests</h1>
+      <p class="sub">Requirements submitted by client companies.</p>
+      <div class="card">
+        <table id="jobsTable">
+          <thead><tr><th>Client</th><th>Title</th><th>Skills Needed</th><th>Location</th><th>Budget/day</th><th>Status</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-placements" style="display:none">
+      <h1>Placements</h1>
+      <p class="sub">Candidates currently assigned to clients.</p>
+      <div class="card">
+        <table id="placementsTable">
+          <thead><tr><th>Candidate</th><th>Client</th><th>Job</th><th>Rate (candidate)</th><th>Markup</th><th>Client charged</th><th>Status</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-engagements" style="display:none">
+      <div class="toolbar">
+        <div>
+          <h1>Advisory Engagements</h1>
+          <p class="sub">Outsourced Bookkeeping &amp; Advisory work — billed monthly, not per placement.</p>
+        </div>
+        <button class="btn-sm" onclick="openEngagementModal()">+ New Engagement</button>
+      </div>
+      <div class="card">
+        <table id="engagementsTable">
+          <thead><tr><th>Client</th><th>Service</th><th>Handled By</th><th>Monthly Fee</th><th>Since</th><th>Status</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-invoices" style="display:none">
+      <h1>Billing / Invoices</h1>
+      <p class="sub">Charge clients — for a staffing placement or an advisory engagement — and track payments.</p>
+      <div class="toolbar">
+        <div></div>
+        <button class="btn-sm" onclick="openInvoiceModal()">+ Issue Invoice</button>
+      </div>
+      <div class="card">
+        <table id="invoicesTable">
+          <thead><tr><th>Client</th><th>For</th><th>Period</th><th>Amount</th><th>Status</th><th>Issued</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-leads" style="display:none">
+      <h1>Employer Leads</h1>
+      <p class="sub">Inquiries submitted from the public "Request Talent" and "Contact" forms.</p>
+      <div class="card">
+        <table id="leadsTable">
+          <thead><tr><th>Contact</th><th>Company</th><th>Type</th><th>Message</th><th>Submitted</th><th>Status</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Add Candidate Modal -->
+<div class="modal-backdrop" id="candidateModal">
+  <div class="modal">
+    <h3>Add Candidate</h3>
+    <label>Name</label><input id="c_name" />
+    <label>Email</label><input id="c_email" type="email" />
+    <div class="form-row">
+      <div><label>Job Title</label><input id="c_title" placeholder="Staff Accountant" /></div>
+      <div><label>Location</label><input id="c_location" placeholder="Doylestown, PA" /></div>
+    </div>
+    <label>Skills (comma separated)</label><input id="c_skills" placeholder="QuickBooks Online, GAAP, Payroll" />
+    <div class="form-row">
+      <div><label>Experience (years)</label><input id="c_exp" type="number" /></div>
+      <div><label>Rate / day ($)</label><input id="c_rate" type="number" /></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-sm secondary" onclick="closeModal('candidateModal')">Cancel</button>
+      <button class="btn-sm" onclick="submitCandidate()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Match / Place Modal -->
+<div class="modal-backdrop" id="placeModal">
+  <div class="modal">
+    <h3>Assign Candidate to Job</h3>
+    <label>Candidate</label>
+    <select id="p_candidate"></select>
+    <div class="form-row">
+      <div><label>Daily rate paid to candidate ($)</label><input id="p_rate" type="number" /></div>
+      <div><label>Agency markup %</label><input id="p_markup" type="number" value="20" /></div>
+    </div>
+    <input type="hidden" id="p_jobId" />
+    <div class="modal-actions">
+      <button class="btn-sm secondary" onclick="closeModal('placeModal')">Cancel</button>
+      <button class="btn-sm" onclick="submitPlacement()">Confirm Placement</button>
+    </div>
+  </div>
+</div>
+
+<!-- Engagement Modal -->
+<div class="modal-backdrop" id="engagementModal">
+  <div class="modal">
+    <h3>New Advisory Engagement</h3>
+    <label>Client</label>
+    <select id="e_client"></select>
+    <label>Service</label>
+    <select id="e_service">
+      <option>Outsourced Bookkeeping</option>
+      <option>Payroll & AP/AR</option>
+      <option>Fractional Controller</option>
+      <option>Fractional CFO Advisory</option>
+      <option>RPO / Unbundled Services</option>
+    </select>
+    <label>Description</label>
+    <textarea id="e_description" rows="2" placeholder="Scope of the monthly engagement"></textarea>
+    <div class="form-row">
+      <div><label>Handled by (optional)</label>
+        <select id="e_candidate"><option value="">ASR advisory team</option></select>
+      </div>
+      <div><label>Monthly fee ($)</label><input id="e_fee" type="number" /></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-sm secondary" onclick="closeModal('engagementModal')">Cancel</button>
+      <button class="btn-sm" onclick="submitEngagement()">Start Engagement</button>
+    </div>
+  </div>
+</div>
+
+<!-- Invoice Modal -->
+<div class="modal-backdrop" id="invoiceModal">
+  <div class="modal">
+    <h3>Issue Invoice</h3>
+    <label>Bill for</label>
+    <select id="i_source" onchange="toggleInvoiceSource()">
+      <option value="placement">Staffing placement</option>
+      <option value="engagement">Advisory engagement</option>
+    </select>
+    <div id="i_placement_fields">
+      <label>Placement</label>
+      <select id="i_placement"></select>
+      <div class="form-row">
+        <div><label>Days</label><input id="i_days" type="number" value="22" /></div>
+        <div><label>Period label</label><input id="i_period" placeholder="September 2026" /></div>
+      </div>
+    </div>
+    <div id="i_engagement_fields" style="display:none">
+      <label>Engagement</label>
+      <select id="i_engagement"></select>
+      <div class="form-row">
+        <div><label>Amount ($)</label><input id="i_amount" type="number" /></div>
+        <div><label>Period label</label><input id="i_period2" placeholder="September 2026" /></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-sm secondary" onclick="closeModal('invoiceModal')">Cancel</button>
+      <button class="btn-sm" onclick="submitInvoice()">Issue</button>
+    </div>
+  </div>
+</div>
+
+<div id="dash-account-modal"></div>
+
+<script src="/js/api.js"></script>
+<script src="/js/dashboard.js"></script>
+<script>
+let CANDIDATES = [], JOBS = [], PLACEMENTS = [], CLIENTS = [], ENGAGEMENTS = [];
+
+document.querySelectorAll('.sidebar nav a').forEach(a => {
+  a.addEventListener('click', () => {
+    document.querySelectorAll('.sidebar nav a').forEach(x => x.classList.remove('active'));
+    a.classList.add('active');
+    document.querySelectorAll('.main > div[id^="tab-"]').forEach(d => d.style.display = 'none');
+    document.getElementById('tab-' + a.dataset.tab).style.display = 'block';
+  });
+});
+
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+
+async function openCandidateModal() { openModal('candidateModal'); }
+async function submitCandidate() {
+  const body = {
+    name: document.getElementById('c_name').value,
+    email: document.getElementById('c_email').value,
+    title: document.getElementById('c_title').value,
+    location: document.getElementById('c_location').value,
+    skills: document.getElementById('c_skills').value,
+    experienceYears: document.getElementById('c_exp').value,
+    rate: document.getElementById('c_rate').value
+  };
+  await api('/api/candidates', { method: 'POST', body });
+  closeModal('candidateModal');
+  await loadAll();
+}
+
+async function approveCandidate(id) {
+  await api(`/api/candidates/${id}`, { method: 'PATCH', body: { status: 'available' } });
+  await loadAll();
+}
+
+function openPlaceModal(jobId) {
+  document.getElementById('p_jobId').value = jobId;
+  const sel = document.getElementById('p_candidate');
+  sel.innerHTML = CANDIDATES.filter(c => c.status === 'available')
+    .map(c => `<option value="${c.id}" data-rate="${c.rate}">${c.name} — ${c.title} (${c.skills.join(', ')})</option>`).join('');
+  if (sel.options.length) document.getElementById('p_rate').value = sel.options[0].dataset.rate;
+  sel.onchange = () => { document.getElementById('p_rate').value = sel.selectedOptions[0].dataset.rate; };
+  openModal('placeModal');
+}
+async function submitPlacement() {
+  const body = {
+    jobRequestId: document.getElementById('p_jobId').value,
+    candidateId: document.getElementById('p_candidate').value,
+    dailyRate: document.getElementById('p_rate').value,
+    agencyMarkupPercent: document.getElementById('p_markup').value
+  };
+  await api('/api/placements', { method: 'POST', body });
+  closeModal('placeModal');
+  await loadAll();
+}
+
+function toggleInvoiceSource() {
+  const isEngagement = document.getElementById('i_source').value === 'engagement';
+  document.getElementById('i_placement_fields').style.display = isEngagement ? 'none' : 'block';
+  document.getElementById('i_engagement_fields').style.display = isEngagement ? 'block' : 'none';
+}
+
+function openInvoiceModal() {
+  document.getElementById('i_source').value = 'placement';
+  toggleInvoiceSource();
+  const sel = document.getElementById('i_placement');
+  sel.innerHTML = PLACEMENTS.map(p => {
+    const cand = CANDIDATES.find(c => c.id === p.candidateId);
+    return `<option value="${p.id}">Placement #${p.id} — ${cand ? cand.name : '?'}</option>`;
+  }).join('');
+  const eSel = document.getElementById('i_engagement');
+  eSel.innerHTML = ENGAGEMENTS.map(e => `<option value="${e.id}" data-fee="${e.monthlyFee}">Engagement #${e.id} — ${clientName(e.clientId)} (${e.serviceType})</option>`).join('');
+  if (eSel.options.length) document.getElementById('i_amount').value = eSel.options[0].dataset.fee;
+  eSel.onchange = () => { document.getElementById('i_amount').value = eSel.selectedOptions[0].dataset.fee; };
+  openModal('invoiceModal');
+}
+async function submitInvoice() {
+  const source = document.getElementById('i_source').value;
+  const body = source === 'engagement'
+    ? { source, engagementId: document.getElementById('i_engagement').value, amount: document.getElementById('i_amount').value, period: document.getElementById('i_period2').value }
+    : { source, placementId: document.getElementById('i_placement').value, days: document.getElementById('i_days').value, period: document.getElementById('i_period').value };
+  await api('/api/invoices', { method: 'POST', body });
+  closeModal('invoiceModal');
+  await loadAll();
+}
+
+function openEngagementModal() {
+  const clientSel = document.getElementById('e_client');
+  clientSel.innerHTML = CLIENTS.map(c => `<option value="${c.id}">${c.company || c.name}</option>`).join('');
+  const candSel = document.getElementById('e_candidate');
+  candSel.innerHTML = '<option value="">ASR advisory team</option>' + CANDIDATES.filter(c => c.status === 'available')
+    .map(c => `<option value="${c.id}">${c.name} — ${c.title}</option>`).join('');
+  openModal('engagementModal');
+}
+async function submitEngagement() {
+  const body = {
+    clientId: document.getElementById('e_client').value,
+    serviceType: document.getElementById('e_service').value,
+    description: document.getElementById('e_description').value,
+    assignedCandidateId: document.getElementById('e_candidate').value,
+    monthlyFee: document.getElementById('e_fee').value
+  };
+  await api('/api/engagements', { method: 'POST', body });
+  closeModal('engagementModal');
+  await loadAll();
+}
+
+async function decideApplication(id, status) {
+  await api(`/api/applications/${id}/status`, { method: 'POST', body: { status } });
+  await loadAll();
+}
+
+async function decideLead(id, status) {
+  await api(`/api/inquiries/${id}/status`, { method: 'POST', body: { status } });
+  await loadAll();
+}
+
+function renderStats(s) {
+  const items = [
+    ['Total Candidates', s.totalCandidates],
+    ['Pending Review', s.pendingReview],
+    ['Placed', s.placedCandidates],
+    ['Active Clients', s.activeClients],
+    ['Open Job Requests', s.openJobs],
+    ['Active Placements', s.activePlacements],
+    ['Active Engagements', s.activeEngagements],
+    ['Monthly Recurring (Advisory)', fmtMoney(s.monthlyRecurring)],
+    ['New Applications', s.newApplications],
+    ['New Employer Leads', s.newInquiries],
+    ['Revenue Collected', fmtMoney(s.totalRevenue)],
+    ['Pending Revenue', fmtMoney(s.pendingRevenue)]
+  ];
+  document.getElementById('statGrid').innerHTML = items.map(([label, value]) =>
+    `<div class="stat-card"><div class="label">${label}</div><div class="value">${value}</div></div>`
+  ).join('');
+}
+
+function renderCandidates() {
+  document.querySelector('#candidatesTable tbody').innerHTML = CANDIDATES.map(c => `
+    <tr>
+      <td>${c.name}</td>
+      <td>${c.title || '—'}</td>
+      <td>${c.skills.join(', ')}</td>
+      <td>${c.experienceYears} yrs</td>
+      <td>${c.location || '—'}</td>
+      <td>${c.rate ? fmtMoney(c.rate) : '—'}</td>
+      <td style="font-size:0.78rem;color:var(--muted)">${c.source === 'self-registered' ? 'Self-registered' : 'Agency-sourced'}</td>
+      <td><span class="badge ${c.status}">${c.status.replace('_',' ')}</span></td>
+      <td>${c.status === 'pending_review' ? `<button class="btn-sm" onclick="approveCandidate(${c.id})">Approve</button>` : ''}</td>
+    </tr>`).join('') || `<tr><td colspan="9" class="empty">No candidates yet</td></tr>`;
+}
+
+function renderApplications(applications) {
+  document.querySelector('#applicationsTable tbody').innerHTML = applications.map(a => `
+    <tr>
+      <td>${a.candidate ? a.candidate.name : '?'}</td>
+      <td>${a.job ? a.job.title : '?'}</td>
+      <td>${a.job ? clientName(a.job.clientId) : '?'}</td>
+      <td>${a.appliedAt}</td>
+      <td><span class="badge ${a.status === 'submitted' ? 'open' : a.status === 'shortlisted' ? 'active' : a.status === 'placed' ? 'placed' : 'unpaid'}">${a.status}</span></td>
+      <td>
+        ${a.status === 'submitted' ? `
+          <button class="btn-sm" onclick="decideApplication(${a.id}, 'shortlisted')">Shortlist</button>
+          <button class="btn-sm secondary" onclick="decideApplication(${a.id}, 'rejected')">Reject</button>
+        ` : a.status === 'shortlisted' && a.job && a.job.status === 'open' ? `<button class="btn-sm" onclick="openPlaceModal(${a.jobRequestId})">Place</button>` : ''}
+      </td>
+    </tr>`).join('') || `<tr><td colspan="6" class="empty">No applications yet</td></tr>`;
+}
+
+function renderJobs() {
+  document.querySelector('#jobsTable tbody').innerHTML = JOBS.map(j => `
+    <tr>
+      <td>${clientName(j.clientId)}</td>
+      <td>${j.title}</td>
+      <td>${j.skillsNeeded.join(', ')}</td>
+      <td>${j.location || '—'}</td>
+      <td>${fmtMoney(j.budgetPerDay)}</td>
+      <td><span class="badge ${j.status}">${j.status}</span></td>
+      <td>${j.status === 'open' ? `<button class="btn-sm" onclick="openPlaceModal(${j.id})">Match Candidate</button>` : '—'}</td>
+    </tr>`).join('') || `<tr><td colspan="7" class="empty">No job requests yet</td></tr>`;
+}
+
+function clientName(id) {
+  const c = CLIENTS.find(c => c.id === id);
+  return c ? c.company || c.name : '—';
+}
+
+function renderPlacements() {
+  document.querySelector('#placementsTable tbody').innerHTML = PLACEMENTS.map(p => {
+    const cand = CANDIDATES.find(c => c.id === p.candidateId);
+    const job = JOBS.find(j => j.id === p.jobRequestId);
+    const clientCharge = Math.round(p.dailyRate * (1 + p.agencyMarkupPercent / 100));
+    return `<tr>
+      <td>${cand ? cand.name : '?'}</td>
+      <td>${clientName(p.clientId)}</td>
+      <td>${job ? job.title : '?'}</td>
+      <td>${fmtMoney(p.dailyRate)}</td>
+      <td>${p.agencyMarkupPercent}%</td>
+      <td>${fmtMoney(clientCharge)}/day</td>
+      <td><span class="badge ${p.status}">${p.status}</span></td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="7" class="empty">No placements yet</td></tr>`;
+}
+
+function renderEngagements() {
+  document.querySelector('#engagementsTable tbody').innerHTML = ENGAGEMENTS.map(e => {
+    const cand = CANDIDATES.find(c => c.id === e.assignedCandidateId);
+    return `<tr>
+      <td>${clientName(e.clientId)}</td>
+      <td>${e.serviceType}</td>
+      <td>${cand ? cand.name : 'ASR advisory team'}</td>
+      <td>${fmtMoney(e.monthlyFee)}/mo</td>
+      <td>${e.startDate}</td>
+      <td><span class="badge ${e.status}">${e.status}</span></td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="6" class="empty">No advisory engagements yet</td></tr>`;
+}
+
+function renderInvoices(invoices) {
+  document.querySelector('#invoicesTable tbody').innerHTML = invoices.map(i => `
+    <tr>
+      <td>${clientName(i.clientId)}</td>
+      <td>${i.source === 'engagement' ? 'Advisory engagement' : 'Staffing placement'}</td>
+      <td>${i.period}</td>
+      <td>${fmtMoney(i.amount)}</td>
+      <td><span class="badge ${i.status}">${i.status}</span></td>
+      <td>${i.issuedAt}</td>
+    </tr>`).join('') || `<tr><td colspan="6" class="empty">No invoices yet</td></tr>`;
+}
+
+function renderLeads(leads) {
+  document.querySelector('#leadsTable tbody').innerHTML = leads.map(l => `
+    <tr>
+      <td>${l.name}<br><span style="font-size:0.78rem;color:var(--muted)">${l.email}</span></td>
+      <td>${l.company || '—'}</td>
+      <td>${l.serviceType === 'advisory' ? 'Bookkeeping &amp; Advisory' : 'Staffing'}</td>
+      <td style="max-width:260px">${l.message}</td>
+      <td>${l.submittedAt}</td>
+      <td><span class="badge ${l.status === 'new' ? 'open' : 'active'}">${l.status}</span></td>
+      <td>${l.status === 'new' ? `<button class="btn-sm" onclick="decideLead(${l.id}, 'contacted')">Mark Contacted</button>` : ''}</td>
+    </tr>`).join('') || `<tr><td colspan="7" class="empty">No employer leads yet</td></tr>`;
+}
+
+async function loadAll() {
+  const [stats, candidates, jobs, placements, engagements, invoices, clients, applications, leads] = await Promise.all([
+    api('/api/reports/summary'),
+    api('/api/candidates'),
+    api('/api/job-requests'),
+    api('/api/placements'),
+    api('/api/engagements'),
+    api('/api/invoices'),
+    api('/api/clients'),
+    api('/api/applications'),
+    api('/api/inquiries')
+  ]);
+  CANDIDATES = candidates; JOBS = jobs; PLACEMENTS = placements; CLIENTS = clients; ENGAGEMENTS = engagements;
+  renderStats(stats);
+  renderCandidates();
+  renderApplications(applications);
+  renderJobs();
+  renderPlacements();
+  renderEngagements();
+  renderInvoices(invoices);
+  renderLeads(leads);
+}
+
+(async () => {
+  const user = await requireRole('agency');
+  window.__ASR_ME = user;
+  initAccountMenu(user);
+  document.getElementById('userName').textContent = user.name;
+  await loadAll();
+})();
+</script>
+<script src="/js/include.js"></script>
+</body>
+</html>

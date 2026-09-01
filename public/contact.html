@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Contact | Active Staffing Resources</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="page-header">
+  <h1>Get in touch</h1>
+  <p>Hiring, looking for work, or just have a question? We usually reply within one business day.</p>
+</div>
+
+<section class="section">
+  <div class="grid-2">
+    <div>
+      <h2 style="font-size:1.2rem;margin-top:0">Contact details</h2>
+      <div class="pub-card" style="margin-bottom:1rem">
+        <h3>Office</h3>
+        <p>P.O. Box 5049<br />New Britain, PA 18901</p>
+      </div>
+      <div class="pub-card" style="margin-bottom:1rem">
+        <h3>Phone</h3>
+        <p>267-429-6599 — Mon–Fri, 8am–5pm ET</p>
+      </div>
+      <div class="pub-card">
+        <h3>Email</h3>
+        <p>office@activestaffingresources.com</p>
+      </div>
+    </div>
+
+    <div class="public-form">
+      <h3 style="margin-top:0">Send us a message</h3>
+      <form id="contactForm">
+        <label>Full Name</label>
+        <input id="c_name" required />
+        <label>Company (optional)</label>
+        <input id="c_company" />
+        <label>Email</label>
+        <input id="c_email" type="email" required />
+        <label>Phone (optional)</label>
+        <input id="c_phone" />
+        <label>Message</label>
+        <textarea id="c_message" rows="4" required></textarea>
+        <button class="btn btn-fill btn-lg" style="width:100%;margin-top:1.25rem" type="submit">Send Message</button>
+        <div class="error-msg" id="contactMsg"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="/js/api.js"></script>
+<script>
+document.getElementById('contactForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const msgEl = document.getElementById('contactMsg');
+  msgEl.style.color = '';
+  msgEl.textContent = '';
+  try {
+    await api('/api/contact', { method: 'POST', body: {
+      name: document.getElementById('c_name').value,
+      company: document.getElementById('c_company').value,
+      email: document.getElementById('c_email').value,
+      phone: document.getElementById('c_phone').value,
+      message: document.getElementById('c_message').value
+    }});
+    document.getElementById('contactForm').reset();
+    msgEl.style.color = 'var(--success)';
+    msgEl.textContent = 'Message sent — we\'ll be in touch soon.';
+  } catch (err) {
+    msgEl.textContent = err.message;
+  }
+});
+</script>
+
+<script src="/js/include.js"></script>
+<script src="/js/router.js"></script>
+</body>
+</html>

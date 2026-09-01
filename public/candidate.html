@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Candidate Dashboard | Active Staffing Resources</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="brand" style="color:#fff;margin-bottom:1.5rem;font-size:0.95rem"><img src="/images/logo-removebg-preview-300x166.webp" alt="Active Staffing Resources" class="brand-logo" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'" /><span style="display:none">ASR</span></div>
+    <h2 id="userName">Candidate</h2>
+    <div class="role-tag">Candidate</div>
+    <nav>
+      <a data-tab="profile" class="active">My Profile</a>
+      <a data-tab="applications">My Applications</a>
+      <a data-tab="placements">My Placements</a>
+    </nav>
+  </div>
+  <div class="main">
+    <div id="dash-topbar"></div>
+
+    <div id="tab-profile">
+      <h1>My Profile</h1>
+      <p class="sub">Private to Active Staffing Resources — client companies never see your profile directly.</p>
+      <div id="statusBanner"></div>
+      <div class="card" id="profileCard"></div>
+    </div>
+
+    <div id="tab-applications" style="display:none">
+      <h1>My Applications</h1>
+      <p class="sub">Roles you've applied to from the public job board.</p>
+      <div class="card">
+        <table id="applicationsTable">
+          <thead><tr><th>Role</th><th>Location</th><th>Applied</th><th>Status</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-placements" style="display:none">
+      <h1>My Placements</h1>
+      <p class="sub">Clients you're currently placed with through ASR.</p>
+      <div class="card">
+        <table id="placementsTable">
+          <thead><tr><th>Client</th><th>Role</th><th>Daily Rate</th><th>Start Date</th><th>Status</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="dash-account-modal"></div>
+
+<script src="/js/api.js"></script>
+<script src="/js/dashboard.js"></script>
+<script>
+function renderStatusBanner(candidates) {
+  const el = document.getElementById('statusBanner');
+  if (candidates.length && candidates[0].status === 'pending_review') {
+    el.innerHTML = `<div class="status-note info">Your profile is under review by an ASR recruiter. This usually takes 1–2 business days — you'll be able to apply to roles once it's approved.</div>`;
+  } else {
+    el.innerHTML = '';
+  }
+}
+
+function renderProfile(candidates) {
+  const el = document.getElementById('profileCard');
+  if (!candidates.length) {
+    el.innerHTML = `<p class="empty">Your profile hasn't been added to the candidate pool yet. <a href="/register">Complete registration</a> or contact your ASR recruiter.</p>`;
+    return;
+  }
+  const c = candidates[0];
+  el.innerHTML = `
+    <table>
+      <tr><th style="width:160px">Name</th><td>${c.name}</td></tr>
+      <tr><th>Title</th><td>${c.title || '—'}</td></tr>
+      <tr><th>Email</th><td>${c.email}</td></tr>
+      <tr><th>Phone</th><td>${c.phone || '—'}</td></tr>
+      <tr><th>Location</th><td>${c.location || '—'}</td></tr>
+      <tr><th>Skills</th><td>${c.skills.join(', ')}</td></tr>
+      <tr><th>Experience</th><td>${c.experienceYears} years</td></tr>
+      <tr><th>LinkedIn</th><td>${c.linkedin || '—'}</td></tr>
+      <tr><th>Summary</th><td>${c.summary || '—'}</td></tr>
+      <tr><th>Rate / day</th><td>${c.rate ? fmtMoney(c.rate) : 'Set by recruiter after review'}</td></tr>
+      <tr><th>Status</th><td><span class="badge ${c.status}">${c.status.replace('_',' ')}</span></td></tr>
+    </table>`;
+}
+
+function renderApplications(applications) {
+  document.querySelector('#applicationsTable tbody').innerHTML = applications.map(a => `
+    <tr>
+      <td>${a.job ? a.job.title : '?'}</td>
+      <td>${a.job ? a.job.location : '—'}</td>
+      <td>${a.appliedAt}</td>
+      <td><span class="badge ${a.status === 'submitted' ? 'open' : a.status === 'shortlisted' ? 'active' : a.status === 'placed' ? 'placed' : 'unpaid'}">${a.status}</span></td>
+    </tr>`).join('') || `<tr><td colspan="4" class="empty">You haven't applied to any roles yet — <a href="/jobs">browse open roles</a>.</td></tr>`;
+}
+
+function renderPlacements(placements) {
+  document.querySelector('#placementsTable tbody').innerHTML = placements.map(p => `
+    <tr>
+      <td>${p.clientCompany}</td>
+      <td>${p.jobTitle}</td>
+      <td>${fmtMoney(p.dailyRate)}</td>
+      <td>${p.startDate}</td>
+      <td><span class="badge ${p.status}">${p.status}</span></td>
+    </tr>`).join('') || `<tr><td colspan="5" class="empty">No placements yet</td></tr>`;
+}
+
+document.querySelectorAll('.sidebar nav a').forEach(a => {
+  a.addEventListener('click', () => {
+    document.querySelectorAll('.sidebar nav a').forEach(x => x.classList.remove('active'));
+    a.classList.add('active');
+    document.querySelectorAll('.main > div[id^="tab-"]').forEach(d => d.style.display = 'none');
+    document.getElementById('tab-' + a.dataset.tab).style.display = 'block';
+  });
+});
+
+(async () => {
+  const user = await requireRole('candidate');
+  window.__ASR_ME = user;
+  initAccountMenu(user);
+  document.getElementById('userName').textContent = user.name;
+  const [candidates, applications, placements] = await Promise.all([
+    api('/api/candidates'), api('/api/applications'), api('/api/placements')
+  ]);
+  renderStatusBanner(candidates);
+  renderProfile(candidates);
+  renderApplications(applications);
+  renderPlacements(placements);
+})();
+</script>
+<script src="/js/include.js"></script>
+</body>
+</html>

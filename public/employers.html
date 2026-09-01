@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>For Employers | Active Staffing Resources</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="page-header">
+  <h1>Qualified candidates in front of you within 48 hours</h1>
+  <p>Tell us about the role — or the bookkeeping work you'd rather hand off — below. An ASR account manager will follow up to confirm scope, budget, and timeline, then your dedicated client portal goes live.</p>
+</div>
+
+<section class="section">
+  <div class="grid-2">
+    <div>
+      <h2 style="font-size:1.3rem;margin-top:0">Why companies staff through ASR</h2>
+      <div class="step"><div class="num"></div><div><h4>Pre-vetted, not just pre-listed</h4><p>Every candidate we submit has passed a background screen and a reference check — you're not the first filter.</p></div></div>
+      <div class="step"><div class="num"></div><div><h4>A portal, not a spreadsheet</h4><p>Once onboarded, you get a client dashboard to post roles, review placements, and manage invoices in one place.</p></div></div>
+      <div class="step"><div class="num"></div><div><h4>Transparent billing</h4><p>One consolidated rate per placement — no surprise fees, no separate agency invoices to reconcile.</p></div></div>
+      <div class="step"><div class="num"></div><div><h4>30-day replacement guarantee</h4><p>If a placement isn't the right fit in the first month, we replace the candidate at no extra cost.</p></div></div>
+
+      <div class="section-head" style="margin-top:2.5rem;margin-bottom:1rem">
+        <div class="eyebrow">Recommendation as a hiring company</div>
+      </div>
+      <div class="testimonial">
+        <p class="quote">"We needed office support fast, and Joe and his team at ASR delivered qualified candidates within days. He listens, he understands our business, and every recommendation was on point."</p>
+        <div class="who"><div class="avatar">DT</div><div><b>Dianne T.</b><span>Office Manager, Rivermark Consulting</span></div></div>
+      </div>
+      <div class="testimonial" style="margin-top:1rem">
+        <p class="quote">"ASR has been a true partner in helping us staff our field and office teams. Joe understands construction hiring in a way most agencies just don't."</p>
+        <div class="who"><div class="avatar">JK</div><div><b>James K.</b><span>Director of Operations, Westbridge Builders</span></div></div>
+      </div>
+      <div class="testimonial" style="margin-top:1rem">
+        <p class="quote">"Joe and the ASR team took the time to understand exactly what we needed and delivered candidates who were genuinely a fit — not just resumes."</p>
+        <div class="who"><div class="avatar">LP</div><div><b>Laura P.</b><span>Redstone Partners</span></div></div>
+      </div>
+    </div>
+
+    <div class="public-form">
+      <h3 style="margin-top:0">Request Talent</h3>
+      <p style="color:var(--muted);font-size:0.85rem;margin-top:-0.5rem">We'll respond within one business day.</p>
+      <form id="leadForm">
+        <label>Full Name</label>
+        <input id="l_name" required />
+        <label>Company</label>
+        <input id="l_company" required />
+        <label>Work Email</label>
+        <input id="l_email" type="email" required />
+        <label>Phone (optional)</label>
+        <input id="l_phone" />
+        <label>What do you need?</label>
+        <select id="l_service">
+          <option value="staffing">Staff a role (temporary, temporary-to-hire, or direct hire)</option>
+          <option value="advisory">Outsourced bookkeeping advisory services</option>
+          <option value="rpo">RPO / unbundled recruiting services</option>
+        </select>
+        <label>Tell us more</label>
+        <textarea id="l_message" rows="4" placeholder="Role and timeline, or the bookkeeping work you'd like to hand off" required></textarea>
+        <button class="btn btn-fill btn-lg" style="width:100%;margin-top:1.25rem" type="submit">Submit Request</button>
+        <div class="error-msg" id="leadMsg"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<div class="stat-strip">
+  <div class="wrap">
+    <div><b>48 hrs</b><span>to first shortlist</span></div>
+    <div><b>9 days</b><span>average time-to-fill</span></div>
+    <div><b>94%</b><span>client retention</span></div>
+    <div><b>30 days</b><span>replacement guarantee</span></div>
+  </div>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="/js/api.js"></script>
+<script>
+document.getElementById('leadForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const msgEl = document.getElementById('leadMsg');
+  msgEl.style.color = '';
+  msgEl.textContent = '';
+  try {
+    await api('/api/contact', { method: 'POST', body: {
+      name: document.getElementById('l_name').value,
+      company: document.getElementById('l_company').value,
+      email: document.getElementById('l_email').value,
+      phone: document.getElementById('l_phone').value,
+      serviceType: document.getElementById('l_service').value,
+      message: document.getElementById('l_message').value
+    }});
+    document.getElementById('leadForm').reset();
+    msgEl.style.color = 'var(--success)';
+    msgEl.textContent = 'Thanks — an ASR account manager will reach out within one business day.';
+  } catch (err) {
+    msgEl.textContent = err.message;
+  }
+});
+</script>
+
+<script src="/js/include.js"></script>
+<script src="/js/router.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!--
+  DASHBOARD TOP BAR — shared across the Agency, Client, and Candidate portals.
+  Edit this ONE file to change the top bar (colors, links, etc.) everywhere at once.
+  It is loaded automatically into any page that has:
+    <div id="dash-topbar"></div>
+  Requires /js/dashboard.js to be included on the page (handles the dropdown +
+  wires up "Change Password" and "Log Out").
+-->
+<div class="topbar">
+  <div class="account-menu" id="accountMenu">
+    <button class="account-btn" type="button" onclick="toggleAccountMenu()">
+      <span class="account-avatar" id="topAvatar">?</span>
+      <span id="topUserName">Account</span>
+      <svg width="12" height="12" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="account-dropdown" id="accountDropdown">
+      <a onclick="openChangePasswordModal()">Change Password</a>
+      <a class="danger" onclick="doLogout()">Log Out</a>
+    </div>
+  </div>
+</div>

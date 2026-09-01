@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Log In | Active Staffing Resources</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-card">
+      <a href="/" class="brand" style="margin-bottom:1.5rem"><img src="/images/logo-removebg-preview-300x166.webp" alt="Active Staffing Resources" class="brand-logo" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'" /><span style="display:none">Active Staffing Resources</span></a>
+      <h1>Log in to your account</h1>
+      <p class="sub">Agency, client, and candidate portals all sign in here.</p>
+      <form id="loginForm">
+        <label>Email</label>
+        <input type="email" id="email" required />
+        <label>Password</label>
+        <input type="password" id="password" required />
+        <button class="btn-primary" type="submit">Log In</button>
+        <div class="error-msg" id="errorMsg"></div>
+      </form>
+      <div class="demo-accounts">
+        <div><b>Agency Admin — Joseph Vernachio:</b> joseph@activestaffingresources.com / admin123</div>
+        <div><b>Client — Rivermark Consulting:</b> dianne.torres@rivermarkconsulting.com / client123</div>
+        <div><b>Client — Westbridge Builders:</b> james.kowalski@westbridgebuilders.com / client123</div>
+        <div><b>Candidate — Laura Petrocelli:</b> laura.petrocelli@gmail.com / cand123</div>
+        <div><b>Candidate — Robert Hannigan:</b> robert.hannigan@gmail.com / cand123</div>
+      </div>
+      <p style="text-align:center;font-size:0.82rem;margin-top:1.25rem;color:var(--muted)">
+        New candidate? <a href="/register" style="color:var(--primary)">Create a profile</a>
+      </p>
+    </div>
+  </div>
+  <script src="/js/api.js"></script>
+  <script>
+    function destinationFor(role) {
+      if (role === 'agency') return '/agency';
+      if (role === 'client') return '/client';
+      return '/candidate';
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const errEl = document.getElementById('errorMsg');
+      errEl.textContent = '';
+      try {
+        const { user } = await api('/api/login', { method: 'POST', body: { email, password } });
+        window.location.href = destinationFor(user.role);
+      } catch (err) {
+        errEl.textContent = err.message;
+      }
+    });
+
+    // if already logged in, redirect
+    api('/api/me').then(({ user }) => {
+      if (user) window.location.href = destinationFor(user.role);
+    });
+  </script>
+<script src="/js/router.js"></script>
+</body>
+</html>

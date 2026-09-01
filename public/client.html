@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Client Dashboard | Active Staffing Resources</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="brand" style="color:#fff;margin-bottom:1.5rem;font-size:0.95rem"><img src="/images/logo-removebg-preview-300x166.webp" alt="Active Staffing Resources" class="brand-logo" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'" /><span style="display:none">ASR</span></div>
+    <h2 id="userName">Client</h2>
+    <div class="role-tag">Client Company</div>
+    <nav>
+      <a data-tab="jobs" class="active">My Job Requests</a>
+      <a data-tab="placements">My Placements</a>
+      <a data-tab="engagements">Advisory Engagements</a>
+      <a data-tab="invoices">Invoices</a>
+    </nav>
+  </div>
+  <div class="main">
+    <div id="dash-topbar"></div>
+
+    <div id="tab-jobs">
+      <div class="toolbar">
+        <div>
+          <h1>My Job Requests</h1>
+          <p class="sub">Submit a staffing requirement to ASR — candidates are matched by our recruiting team, not hired directly.</p>
+        </div>
+        <button class="btn-sm" onclick="openJobModal()">+ Post Job Request</button>
+      </div>
+      <div class="card">
+        <table id="jobsTable">
+          <thead><tr><th>Title</th><th>Skills Needed</th><th>Location</th><th>Budget/day</th><th>Status</th><th>Posted</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-placements" style="display:none">
+      <h1>My Placements</h1>
+      <p class="sub">Candidates ASR has assigned to your team.</p>
+      <div class="card">
+        <table id="placementsTable">
+          <thead><tr><th>Candidate</th><th>Skills</th><th>Job</th><th>Rate</th><th>Start</th><th>Status</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-engagements" style="display:none">
+      <h1>Advisory Engagements</h1>
+      <p class="sub">Ongoing bookkeeping, payroll, or advisory work ASR handles for you directly — billed monthly, not per placement.</p>
+      <div class="card">
+        <table id="engagementsTable">
+          <thead><tr><th>Service</th><th>Description</th><th>Handled By</th><th>Monthly Fee</th><th>Since</th><th>Status</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-invoices" style="display:none">
+      <h1>Invoices</h1>
+      <p class="sub">Bills issued by Active Staffing Resources, across both staffing placements and advisory engagements.</p>
+      <div class="card">
+        <table id="invoicesTable">
+          <thead><tr><th>For</th><th>Period</th><th>Amount</th><th>Status</th><th>Issued</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal-backdrop" id="jobModal">
+  <div class="modal">
+    <h3>Post Job Request</h3>
+    <label>Title</label><input id="j_title" placeholder="Senior Staff Accountant" />
+    <label>Description</label><textarea id="j_desc" rows="3"></textarea>
+    <label>Skills needed (comma separated)</label><input id="j_skills" placeholder="GAAP, NetSuite, Financial Reporting" />
+    <div class="form-row">
+      <div><label>Employment Type</label>
+        <select id="j_type">
+          <option>Temporary</option>
+          <option>Temporary-to-Hire</option>
+          <option>Direct Hire</option>
+        </select>
+      </div>
+      <div><label>Location</label><input id="j_location" placeholder="Doylestown, PA" /></div>
+    </div>
+    <label>Budget / day ($)</label><input id="j_budget" type="number" />
+    <div class="modal-actions">
+      <button class="btn-sm secondary" onclick="closeModal('jobModal')">Cancel</button>
+      <button class="btn-sm" onclick="submitJob()">Post</button>
+    </div>
+  </div>
+</div>
+
+<div id="dash-account-modal"></div>
+
+<script src="/js/api.js"></script>
+<script src="/js/dashboard.js"></script>
+<script>
+let JOBS = [];
+
+document.querySelectorAll('.sidebar nav a').forEach(a => {
+  a.addEventListener('click', () => {
+    document.querySelectorAll('.sidebar nav a').forEach(x => x.classList.remove('active'));
+    a.classList.add('active');
+    document.querySelectorAll('.main > div[id^="tab-"]').forEach(d => d.style.display = 'none');
+    document.getElementById('tab-' + a.dataset.tab).style.display = 'block';
+  });
+});
+
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function openJobModal() { openModal('jobModal'); }
+
+async function submitJob() {
+  const body = {
+    title: document.getElementById('j_title').value,
+    description: document.getElementById('j_desc').value,
+    skillsNeeded: document.getElementById('j_skills').value,
+    employmentType: document.getElementById('j_type').value,
+    location: document.getElementById('j_location').value,
+    budgetPerDay: document.getElementById('j_budget').value
+  };
+  await api('/api/job-requests', { method: 'POST', body });
+  closeModal('jobModal');
+  await loadAll();
+}
+
+async function payInvoice(id) {
+  await api(`/api/invoices/${id}/pay`, { method: 'POST' });
+  await loadAll();
+}
+
+function renderJobs() {
+  document.querySelector('#jobsTable tbody').innerHTML = JOBS.map(j => `
+    <tr>
+      <td>${j.title}</td>
+      <td>${j.skillsNeeded.join(', ')}</td>
+      <td>${j.location || '—'}</td>
+      <td>${fmtMoney(j.budgetPerDay)}</td>
+      <td><span class="badge ${j.status}">${j.status}</span></td>
+      <td>${j.createdAt}</td>
+    </tr>`).join('') || `<tr><td colspan="6" class="empty">No job requests posted yet</td></tr>`;
+}
+
+function renderPlacements(placements) {
+  document.querySelector('#placementsTable tbody').innerHTML = placements.map(p => {
+    const cand = p.candidate;
+    return `<tr>
+      <td>${cand ? cand.name : '?'}</td>
+      <td>${cand ? cand.skills.join(', ') : '—'}</td>
+      <td>${p.jobTitle}</td>
+      <td>${fmtMoney(p.billRatePerDay)}/day</td>
+      <td>${p.startDate}</td>
+      <td><span class="badge ${p.status}">${p.status}</span></td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="6" class="empty">No placements yet</td></tr>`;
+}
+
+function renderEngagements(engagements) {
+  document.querySelector('#engagementsTable tbody').innerHTML = engagements.map(e => `
+    <tr>
+      <td>${e.serviceType}</td>
+      <td style="max-width:280px">${e.description || '—'}</td>
+      <td>${e.assignedCandidate ? e.assignedCandidate.name : 'ASR advisory team'}</td>
+      <td>${fmtMoney(e.monthlyFee)}/mo</td>
+      <td>${e.startDate}</td>
+      <td><span class="badge ${e.status}">${e.status}</span></td>
+    </tr>`).join('') || `<tr><td colspan="6" class="empty">No advisory engagements yet — reach out from the "For Employers" page to get started.</td></tr>`;
+}
+
+function renderInvoices(invoices) {
+  document.querySelector('#invoicesTable tbody').innerHTML = invoices.map(i => `
+    <tr>
+      <td>${i.source === 'engagement' ? 'Advisory engagement' : 'Staffing placement'}</td>
+      <td>${i.period}</td>
+      <td>${fmtMoney(i.amount)}</td>
+      <td><span class="badge ${i.status}">${i.status}</span></td>
+      <td>${i.issuedAt}</td>
+      <td>${i.status === 'unpaid' ? `<button class="btn-sm" onclick="payInvoice(${i.id})">Mark Paid</button>` : '—'}</td>
+    </tr>`).join('') || `<tr><td colspan="6" class="empty">No invoices yet</td></tr>`;
+}
+
+async function loadAll() {
+  const [jobs, placements, engagements, invoices] = await Promise.all([
+    api('/api/job-requests'),
+    api('/api/placements'),
+    api('/api/engagements'),
+    api('/api/invoices')
+  ]);
+  JOBS = jobs;
+  renderJobs();
+  renderPlacements(placements);
+  renderEngagements(engagements);
+  renderInvoices(invoices);
+}
+
+(async () => {
+  const user = await requireRole('client');
+  window.__ASR_ME = user;
+  initAccountMenu(user);
+  document.getElementById('userName').textContent = user.company || user.name;
+  await loadAll();
+})();
+</script>
+<script src="/js/include.js"></script>
+</body>
+</html>

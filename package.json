@@ -1,0 +1,10 @@
+{
+  "name": "active-staffing-resources-portal",
+  "version": "1.0.0",
+  "description": "Active Staffing Resources — demo platform: public marketing site plus Agency, Client, and Candidate portals for the Finance & Accounting Staffing and Outsourced Bookkeeping & Advisory divisions.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {}
+}

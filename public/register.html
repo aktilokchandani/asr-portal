@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Create Your Profile | Active Staffing Resources</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="page-header">
+  <h1>Create your candidate profile</h1>
+  <p>Takes about five minutes. Your profile is private — client companies never see it directly; an ASR recruiter reviews it first.</p>
+</div>
+
+<section class="section" style="max-width:800px">
+  <div class="public-form" style="max-width:none">
+    <form id="registerForm">
+      <label>Full Name</label>
+      <input id="r_name" required />
+
+      <div class="form-row">
+        <div><label>Email</label><input id="r_email" type="email" required /></div>
+        <div><label>Phone</label><input id="r_phone" placeholder="(555) 555-0100" /></div>
+      </div>
+
+      <label>Password</label>
+      <input id="r_password" type="password" required minlength="6" />
+
+      <div class="form-row">
+        <div><label>Desired Job Title</label><input id="r_title" placeholder="e.g. Staff Accountant, Bookkeeper" required /></div>
+        <div><label>Location (City, State)</label><input id="r_location" placeholder="e.g. Doylestown, PA" required /></div>
+      </div>
+
+      <label>Skills (comma separated)</label>
+      <input id="r_skills" placeholder="QuickBooks Online, GAAP, Payroll, Reconciliations" required />
+
+      <div class="form-row">
+        <div><label>Years of Experience</label><input id="r_experience" type="number" min="0" required /></div>
+        <div><label>LinkedIn URL (optional)</label><input id="r_linkedin" placeholder="linkedin.com/in/you" /></div>
+      </div>
+
+      <label>Short Summary</label>
+      <textarea id="r_summary" rows="3" placeholder="A couple sentences about your background and what you're looking for"></textarea>
+
+      <button class="btn btn-fill btn-lg" style="width:100%;margin-top:1.5rem" type="submit">Create Profile</button>
+      <div class="error-msg" id="registerMsg"></div>
+      <p style="font-size:0.78rem;color:var(--muted);margin-top:1rem">By creating a profile you agree that Active Staffing Resources may contact you about relevant opportunities. We never share your profile with a client company without your knowledge.</p>
+    </form>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="/js/api.js"></script>
+<script>
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const msgEl = document.getElementById('registerMsg');
+  msgEl.textContent = '';
+  try {
+    await api('/api/register', { method: 'POST', body: {
+      name: document.getElementById('r_name').value,
+      email: document.getElementById('r_email').value,
+      password: document.getElementById('r_password').value,
+      phone: document.getElementById('r_phone').value,
+      title: document.getElementById('r_title').value,
+      location: document.getElementById('r_location').value,
+      skills: document.getElementById('r_skills').value,
+      experienceYears: document.getElementById('r_experience').value,
+      linkedin: document.getElementById('r_linkedin').value,
+      summary: document.getElementById('r_summary').value
+    }});
+    window.location.href = '/candidate';
+  } catch (err) {
+    msgEl.textContent = err.message;
+  }
+});
+</script>
+
+<script src="/js/include.js"></script>
+<script src="/js/router.js"></script>
+</body>
+</html>
